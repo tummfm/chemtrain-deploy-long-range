@@ -1,0 +1,12 @@
+build/
+
+# Generated benchmark artifacts: large, deterministic to regenerate with
+# run_benchmark.py, and not meant to live in git. summary.json/.csv and the
+# .ptb.json export metadata are small and kept tracked as the actual record
+# of a run.
+benchmark/models/*.ptb
+benchmark/**/*.lmpdat
+benchmark/**/*.screen
+log.lammps
+__pycache__/
+*.pyc

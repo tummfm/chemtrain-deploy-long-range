@@ -1,0 +1,43 @@
+{
+  "source_doi": "10.5281/zenodo.1198158",
+  "replication": [
+    2,
+    1,
+    1
+  ],
+  "forcefield": "charmm36",
+  "water_model": "tip3p_flexible",
+  "nonbonded_cutoff_nm": 1.2,
+  "switch_distance_nm": 1.0,
+  "ewald_error_tolerance": 0.0005,
+  "constraints": "None",
+  "rigid_water": false,
+  "hydrogen_mass_amu": 0.0,
+  "temperature_K": 310.15,
+  "pressure_bar": 1.0,
+  "friction_per_ps": 1.0,
+  "barostat_interval": 25,
+  "timestep_fs": 0.5,
+  "restraint_stages": [
+    [
+      2.0,
+      0.2
+    ],
+    [
+      0.5,
+      0.2
+    ],
+    [
+      0.1,
+      0.2
+    ]
+  ],
+  "heating_ps": 100.0,
+  "free_equil_ns": 1.0,
+  "xtc_interval_ps": 10.0,
+  "log_interval_ps": 10.0,
+  "platform": "CUDA",
+  "precision": "mixed",
+  "device_index": "",
+  "seed": 0
+}

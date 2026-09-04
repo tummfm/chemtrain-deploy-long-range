@@ -1,0 +1,39 @@
+{
+  "family": "mp",
+  "version": "mh-1",
+  "head": "omol",
+  "heads": [
+    "matpes_r2scan",
+    "mp_pbe_refit_add",
+    "spice_wB97M",
+    "oc20_usemppbe",
+    "omol",
+    "omat_pbe"
+  ],
+  "atomic_numbers": [
+    1,
+    6,
+    7,
+    8,
+    11,
+    15,
+    17
+  ],
+  "lammps_specorder": [
+    "H",
+    "C",
+    "N",
+    "O",
+    "Na",
+    "P",
+    "Cl"
+  ],
+  "r_max_angstrom": 6.0,
+  "num_interactions": 2,
+  "variants": [
+    "comm_off_newton_off",
+    "comm_off_newton_on",
+    "comm_on_newton_on"
+  ],
+  "communication_buffer_width": 2048
+}

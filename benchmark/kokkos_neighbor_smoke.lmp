@@ -1,0 +1,23 @@
+# Isolate periodic Kokkos neighbor construction from chemtrain-deploy/JAX.
+# The Python benchmark's variables are accepted so this can use the same data
+# and fixed 1x1x1, 2x1x1, or 2x2x1 domain decomposition.
+
+variable data_file index 1BNA_DNA.lmpdat
+variable proc_x index 1
+variable proc_y index 1
+variable proc_z index 1
+
+units metal
+atom_style atomic
+boundary p p p
+newton on
+processors ${proc_x} ${proc_y} ${proc_z}
+read_data ${data_file}
+
+pair_style lj/cut 6.0
+pair_coeff * * 0.0 1.0
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check no
+
+thermo 1
+run 0

@@ -1,0 +1,16 @@
+;; POPC bilayer, 2x1x1 in-plane replication of Zenodo 10.5281/zenodo.1198158
+;; (CHARMM36, NMRlipids project, CC-BY-4.0). Water is the flexible TIP3
+;; in toppar/TIP3_flexible.itp, not the source's rigid [settles] one.
+
+#include "toppar/charmm36.itp"
+#include "toppar/POPC.itp"
+#include "toppar/TIP3_flexible.itp"
+
+[ system ]
+POPC bilayer, 400 lipids, flexible TIP3, no ions
+
+[ molecules ]
+POPC   200
+SOL    9000
+POPC   200
+SOL    9000

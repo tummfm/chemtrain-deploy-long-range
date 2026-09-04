@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+# Fixed-coordinate throughput test for the periodic 1BNA MACE-MH-1/OMOL model.
+# The Python driver supplies all paths, step counts, and processor-grid values.
+
+variable model index model.ptb
+variable data_file index 1BNA_DNA.lmpdat
+variable warmup_steps index 2
+variable benchmark_steps index 10
+variable memory_fraction index 0.75
+variable atom_capacity index 1.05
+variable edge_capacity index 1.05
+variable proc_x index 1
+variable proc_y index 1
+variable proc_z index 1
+
+units metal
+atom_style atomic
+boundary p p p
+newton on
+processors ${proc_x} ${proc_y} ${proc_z}
+read_data ${data_file}
+
+# The data file contains masses. They are irrelevant to this fixed-coordinate
+# force benchmark, but retaining them makes the input a valid atomic system.
+pair_style chemtrain cuda ${memory_fraction} comm on capacity/atom ${atom_capacity} capacity/edge ${edge_capacity}
+pair_coeff * * ${model}
+
+# MACE-MH-1 uses a 6 Å cutoff. The skin is included in LAMMPS neighbor
+# construction; the periodic cell is the one read from the PDB-derived data.
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check no
+
+thermo 1000000000
+thermo_style custom step atoms pe
+thermo_modify format float %.16g
+timer full
+
+# Compile and allocate before the measured section. The warmup also absorbs
+# the first dynamic-buffer growth, if the initial graph estimate is exceeded.
+run 0
+run ${warmup_steps}
+run ${benchmark_steps} pre no post no

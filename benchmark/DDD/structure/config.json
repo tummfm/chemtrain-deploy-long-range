@@ -1,0 +1,45 @@
+{
+  "pdb_id": "1BNA",
+  "dna_forcefield": "amber14/DNA.bsc1.xml",
+  "water_model": "tip3p",
+  "box_shape": "cube",
+  "padding_nm": 1.0,
+  "ionic_strength_molar": 0.15,
+  "positive_ion": "Na+",
+  "negative_ion": "Cl-",
+  "nonbonded_cutoff_nm": 1.0,
+  "ewald_error_tolerance": 0.0005,
+  "constraints": "None",
+  "rigid_water": false,
+  "hydrogen_mass_amu": 0.0,
+  "temperature_K": 300.0,
+  "pressure_bar": 1.0,
+  "friction_per_ps": 1.0,
+  "barostat_interval": 100,
+  "equil_timestep_fs": 0.5,
+  "prod_timestep_fs": 0.5,
+  "restraint_stages": [
+    [
+      5.0,
+      1.0
+    ],
+    [
+      0.5,
+      1.0
+    ],
+    [
+      0.1,
+      1.0
+    ]
+  ],
+  "free_equil_ns": 1.0,
+  "production_ns": 500.0,
+  "report_interval_ps": 10.0,
+  "log_interval_ps": 100.0,
+  "checkpoint_interval_ps": 1000.0,
+  "platform": "CUDA",
+  "precision": "mixed",
+  "device_index": "1",
+  "seed": 0,
+  "replica": 0
+}

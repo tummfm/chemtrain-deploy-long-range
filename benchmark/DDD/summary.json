@@ -1,0 +1,83 @@
+{
+  "model": "/ds/project/franz/src/chemtrain-deploy-long-range/benchmark/models/mace_mh1_omol.ptb",
+  "data_file": "/ds/project/franz/src/chemtrain-deploy-long-range/benchmark/DDD/1BNA_DNA.lmpdat",
+  "pdb": "/ds/project/franz/projects/LongRange/Drew\u2013Dickerson/openmm/runs/1BNA_DNA.bsc1_tip3p_150mM_300K_rep0/equilibrated.pdb",
+  "steps": 10,
+  "warmup_steps": 2,
+  "repeats": 1,
+  "memory_fraction": 0.75,
+  "atom_capacity": 1.05,
+  "edge_capacity": 1.05,
+  "kokkos": true,
+  "kokkos_binsize": null,
+  "results": [
+    {
+      "gpu_count": 1,
+      "physical_gpus": "4",
+      "processor_grid": [
+        1,
+        1,
+        1
+      ],
+      "repeat": 1,
+      "wall_seconds_including_startup": 411.0267042040359,
+      "elapsed_seconds": 10.3741,
+      "mpi_ranks": 1,
+      "steps": 10,
+      "steps_per_second": 0.9639390404950791,
+      "atoms": 18914,
+      "atom_steps_per_second": 18231.943011923926
+    },
+    {
+      "gpu_count": 2,
+      "physical_gpus": "4,5",
+      "processor_grid": [
+        2,
+        1,
+        1
+      ],
+      "repeat": 1,
+      "wall_seconds_including_startup": 410.9147458751686,
+      "elapsed_seconds": 6.39855,
+      "mpi_ranks": 2,
+      "steps": 10,
+      "steps_per_second": 1.5628540841284353,
+      "atoms": 18914,
+      "atom_steps_per_second": 29559.822147205225
+    },
+    {
+      "gpu_count": 4,
+      "physical_gpus": "4,5,6,7",
+      "processor_grid": [
+        2,
+        2,
+        1
+      ],
+      "repeat": 1,
+      "wall_seconds_including_startup": 62.277836055029184,
+      "elapsed_seconds": 4.22081,
+      "mpi_ranks": 4,
+      "steps": 10,
+      "steps_per_second": 2.3692134921969954,
+      "atoms": 18914,
+      "atom_steps_per_second": 44811.303991413966
+    },
+    {
+      "gpu_count": 7,
+      "physical_gpus": "0,1,3,4,5,6,7",
+      "processor_grid": [
+        7,
+        1,
+        1
+      ],
+      "repeat": 1,
+      "wall_seconds_including_startup": 93.75303073204122,
+      "elapsed_seconds": 3.52013,
+      "mpi_ranks": 7,
+      "steps": 10,
+      "steps_per_second": 2.8408041748458155,
+      "atoms": 18914,
+      "atom_steps_per_second": 53730.97016303375
+    }
+  ]
+}
