@@ -1,14 +1,12 @@
-# chemtrain-deploy-mr at the current checkout as of 2026-09-01.
-# This local VCS URL intentionally pins the exact source revision used by the
-# benchmark. Replace it with the corresponding remote VCS URL when cloning the
-# benchmark on another machine.
-chemtrain[cuda12] @ git+file:///ds/project/franz/src/chemtrain-deploy-mr@df61d51176082df83bee521129ec663a6719d7fb
+# PLACEHOLDER: chemtrain-deploy is not yet released publicly. Once it is, pin the
+# release/commit that ships it here, e.g.:
+#   chemtrain[cuda12] @ git+https://github.com/tummfm/chemtrain.git@<commit-or-tag>
+# See https://chemtrain.readthedocs.io/en/latest/ and https://github.com/tummfm/chemtrain
+# for current status.
+chemtrain[cuda12] @ git+https://github.com/tummfm/chemtrain.git@<PIN_CHEMTRAIN_DEPLOY_COMMIT>
 
-# The MACE foundation-model export documented by chemtrain-deploy-mr.
+# The MACE foundation-model export documented by chemtrain-deploy.
 mace-torch==0.3.16
-# Pinned to the exact commit used here (verified public: github.com/tummfm/mace-jax,
-# branch fix/preserve-gated-normalization). dev5 itself currently uses a local editable
-# checkout of the same commit rather than this pip install.
 mace-jax @ git+https://github.com/tummfm/mace-jax.git@717a2537946146a1671cd187b9841088d5e7f6a2
 openequivariance[jax]==0.6.8
 openequivariance_extjax==0.6.8

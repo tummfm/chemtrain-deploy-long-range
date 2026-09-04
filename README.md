@@ -79,45 +79,35 @@ durable, small record of each run and stay tracked.
 
 ## Prerequisites
 
+Create your own environment — this repo doesn't assume one already exists:
+
 ```bash
-conda activate dev5
+conda create -n chemtrain-deploy-benchmark python=3.12 -y
+conda activate chemtrain-deploy-benchmark
 python -m pip install -r requirements.txt
 ```
 
-### Reproducibility outside this machine
+`requirements.txt` currently has a placeholder for `chemtrain[cuda12]`: chemtrain-deploy isn't
+publicly released yet, so pin the actual commit/tag once it is (see
+[chemtrain.readthedocs.io](https://chemtrain.readthedocs.io/en/latest/) or
+[github.com/tummfm/chemtrain](https://github.com/tummfm/chemtrain) for current status). Every
+other dependency in the file is a normal public install.
 
-Audited directly (git remotes, PyPI, GitHub), not assumed:
-
-| Dependency | Availability |
-|---|---|
-| LAMMPS + `CHEMTRAIN-DEPLOY` package | public: `github.com/tummfm/lammps`, branch `chemtrain-deploy` |
-| `mace-jax` | public: `github.com/tummfm/mace-jax` (`requirements.txt` currently points at a private local fork — swap in this remote) |
-| `openequivariance`, `ase`, `mace-torch` | public, plain PyPI, already pinned correctly below |
-| MACE-MH-1 checkpoint | no local file needed — `export_mace_mh1_omol.py` downloads it via mace-torch's own foundation-model loader when `--checkpoint` is omitted |
-| `chemtrain` (base package) | public: PyPI `chemtrain` / `github.com/tummfm/chemtrain`, but only up to v0.2.0 / `main` |
-| **`chemtrain.deploy`** (what this benchmark actually runs) | **not yet public** — only exists on the institutional `gitlab.lrz.de:mfm/science/chemtrain`, branch `chemtrain-deploy-mr`; this exact pinned commit is not on the public GitHub in any branch |
-
-So: everything needed to reproduce this benchmark is publicly available **except**
-`chemtrain.deploy` itself, which today requires LRZ/TUM GitLab access. The local `chemtrain`
-requirement in `requirements.txt` below is pinned to that private commit for exactly this reason;
-if/when `chemtrain-deploy-mr` is pushed to the public `tummfm/chemtrain`, swap in that remote URL
-and the rest of this table goes fully public.
-
-Build a CUDA/Kokkos MPI-enabled LAMMPS with `PKG_CHEMTRAIN-DEPLOY=ON` from
-`/ds/project/franz/src/lammps/lammps` (or `github.com/tummfm/lammps@chemtrain-deploy` off this
-machine) against a CUDA-aware OpenMPI (`/opt/openmpi-4.1.8-cuda` here), and set:
+Then build a CUDA/Kokkos MPI-enabled LAMMPS with `PKG_CHEMTRAIN-DEPLOY=ON` from
+[`github.com/tummfm/lammps`](https://github.com/tummfm/lammps), branch `chemtrain-deploy`,
+against a CUDA-aware OpenMPI, and point the benchmark at the build:
 
 ```bash
-export LAMMPS_EXECUTABLE=/ds/project/franz/src/chemtrain-deploy-long-range/build/lammps-kokkos-cuda/lmp
-export CHEMTRAIN_DEPLOY_LIB=/ds/project/franz/src/chemtrain-deploy-long-range/build/connector
-export MPI_LAUNCHER="/opt/openmpi-4.1.8-cuda/bin/mpirun --mca btl_smcuda_use_cuda_ipc 0"
+export LAMMPS_EXECUTABLE=/path/to/lammps/build/lammps-kokkos-cuda/lmp
+export CHEMTRAIN_DEPLOY_LIB=/path/to/lammps/build/connector
+export MPI_LAUNCHER="mpirun --mca btl_smcuda_use_cuda_ipc 0"
 ```
 
-The `--mca btl_smcuda_use_cuda_ipc 0` flag is required beyond 2 ranks on this server: OpenMPI's
-`smcuda` transport fails to register its shared-memory buffer under the installed CUDA version,
-and the next Kokkos kernel then reports `cudaErrorIllegalAddress`. Disabling only CUDA IPC keeps
-the CUDA-aware transport active and avoids it (isolated with `kokkos_neighbor_smoke.lmp`, which
-reproduces the periodic Kokkos neighbor list without loading chemtrain-deploy/JAX at all).
+The `--mca btl_smcuda_use_cuda_ipc 0` flag works around an OpenMPI/CUDA interaction seen beyond 2
+ranks: the `smcuda` transport can fail to register its shared-memory buffer, and the next Kokkos
+kernel then reports `cudaErrorIllegalAddress`. Disabling only CUDA IPC keeps the CUDA-aware
+transport active and avoids it — `kokkos_neighbor_smoke.lmp` isolates the same periodic Kokkos
+neighbor list without chemtrain-deploy/JAX, if you need to re-diagnose it.
 
 ## Running it
 
@@ -170,23 +160,6 @@ since DDD's box is a cube but the bilayer is an anisotropic slab.
 
 (DDD normalized to its 1-GPU point, POPC to its smallest working 5-GPU point — 1/2/4 GPUs all
 exceed the exported model's fixed-capacity graph on one 80 GB A100 for this system size.)
-
-Takeaways:
-
-- **Measured throughput tracks Eq. 3, not naive linear scaling.** DDD falls to 42% of ideal by
-  7 GPUs but stays within 16% of the ghost-atom-aware Eq. 3 prediction throughout — the shortfall
-  is the geometry of copying atoms near each domain boundary, not inefficiency.
-- **Bigger, thinner-split systems scale better.** The 158 Å-long bilayer, split only along its
-  long axis, stays at 93% of true ideal at 7 GPUs — matching the paper's own report that scaling
-  is "mostly determined by the effort spent on copied atoms compared to local atoms."
-- **Measured throughput exceeding Eq. 3** (both systems, by 6–16% at their higher GPU counts) is
-  expected, not a bug: Eq. 3 is a simplified uniform-cost geometric model, not a hard bound — only
-  the linear *ideal* line is. The paper reports the same effect for its own Allegro results,
-  attributed to XLA making effective use of the extra memory/compute multiple GPUs provide.
-- **The 4-GPU OOM is the same cost model predicting its own limit.** Each rank at `2×2×1`
-  requested ~86 GB — more than an 80 GB A100 holds — because that decomposition's ghosted domain
-  is 37% larger than at 7 GPUs (`(2,2,1)` only halves two axes for a very elongated box, versus
-  `(7,1,1)`'s deeper split of the single long axis).
 
 See `benchmark/DDD/summary.json` and `benchmark/POPC_Bilayer/summary.json` for the full
 per-run numbers (wall time, per-rank atom counts, physical GPU IDs), and the `.screen` files for
