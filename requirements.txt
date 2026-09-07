@@ -1,9 +1,12 @@
-# PLACEHOLDER: chemtrain-deploy is not yet released publicly. Once it is, pin the
-# release/commit that ships it here, e.g.:
-#   chemtrain[cuda12] @ git+https://github.com/tummfm/chemtrain.git@<commit-or-tag>
-# See https://chemtrain.readthedocs.io/en/latest/ and https://github.com/tummfm/chemtrain
-# for current status.
-chemtrain[cuda12] @ git+https://github.com/tummfm/chemtrain.git@<PIN_CHEMTRAIN_DEPLOY_COMMIT>
+# Python side of the benchmark. The LAMMPS + chemtrain-deploy connector/PJRT
+# build is a separate, non-pip step -- see README "Prerequisites" and
+# https://chemtrain.readthedocs.io/en/latest/chemtrain-deploy/installation.html
+#
+# chemtrain-deploy ships from the chemtrain repo's main branch. The [cuda12] extra
+# pulls JAX's CUDA wheels; use [cuda13] on a CUDA 13 host instead. Pinned to the
+# commit these numbers were produced against; move it forward as tummfm/chemtrain
+# advances (a tagged release supersedes the pin once one exists).
+chemtrain[cuda12] @ git+https://github.com/tummfm/chemtrain.git@b256dc920aade9c947601341fb4390983abb3500
 
 # The MACE foundation-model export documented by chemtrain-deploy.
 mace-torch==0.3.16
@@ -11,5 +14,7 @@ mace-jax @ git+https://github.com/tummfm/mace-jax.git@717a2537946146a1671cd187b9
 openequivariance[jax]==0.6.8
 openequivariance_extjax==0.6.8
 
-# Used to read the periodic PDB and write LAMMPS data files.
+# Used to read the periodic PDB and write LAMMPS data files
 ase>=3.22
+# Only for benchmark/plot_scaling.py
+matplotlib>=3.7
