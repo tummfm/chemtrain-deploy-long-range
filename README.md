@@ -148,26 +148,41 @@ black in the paper's own Figure 2) and the paper's **approximate** strong scalin
 S(P) = [ (L + 2TR) / (P^(-1/d) L + 2TR) ]^d
 ```
 
-evaluated with this export's T = 2 interaction layers and R = 6.0 Å cutoff, generalized to each
+evaluated with **T = 1** (halo depth in cutoffs) and R = 6.0 Å cutoff, generalized to each
 system's actual `(px, py, pz)` LAMMPS grid rather than the paper's cubic `P^(1/d)` shorthand,
-since DDD's box is a cube but the bilayer is an anisotropic slab. Regenerate it after any run
-with `python benchmark/plot_scaling.py` (needs only `matplotlib`; reads the tracked
-`summary.json` files and the `structure/equilibrated.pdb` box records).
+since DDD's box is a cube but the bilayer is an anisotropic slab.
+
+`T = 1`, not the omol head's 2 message-passing layers, because these runs use the
+**communication-enabled (`comm on`) model variant**: intermediate features are exchanged
+between ranks after each message-passing step, so a rank only needs ghost atoms within *one*
+cutoff of its faces, not the full `num_interactions · r_max` receptive field. `comm off` runs
+would use `T = 2`.
+
+Regenerate the figure after any run with `python benchmark/plot_scaling.py` (needs only
+`matplotlib`; reads the tracked `summary.json` files and the `structure/equilibrated.pdb` box
+records).
 
 | System | GPUs | Grid | Atoms/rank | steps/s | atom·steps/s | Eff. vs. ideal | Eff. vs. Eq. 3 |
 |---|---:|---|---:|---:|---:|---:|---:|
 | DDD | 1 | 1×1×1 | 18,914 | 0.964 | 18,232 | 100% | 100% |
-| DDD | 2 | 2×1×1 | 9,457 | 1.563 | 29,560 | 81% | 105% |
-| DDD | 4 | 2×2×1 | 4,729 | 2.369 | 44,811 | 61% | 102% |
-| DDD | 7 | 7×1×1 | 2,702 | 2.841 | 53,731 | 42% | 115% |
+| DDD | 2 | 2×1×1 | 9,457 | 1.563 | 29,560 | 81% | 95% |
+| DDD | 4 | 2×2×1 | 4,729 | 2.369 | 44,811 | 61% | 84% |
+| DDD | 7 | 7×1×1 | 2,702 | 2.841 | 53,731 | 42% | 85% |
 | POPC | 4 | 2×2×1 | 26,900 | — | — | — | **OOM** |
 | POPC | 5 | 5×1×1 | 21,520 | 0.674 | 72,506 | 100% | 100% |
-| POPC | 6 | 6×1×1 | 17,933 | 0.791 | 85,124 | 98% | 106% |
-| POPC | 7 | 7×1×1 | 15,371 | 0.879 | 94,622 | 93% | 109% |
+| POPC | 6 | 6×1×1 | 17,933 | 0.791 | 85,124 | 98% | 103% |
+| POPC | 7 | 7×1×1 | 15,371 | 0.879 | 94,622 | 93% | 103% |
 
 (DDD normalized to its 1-GPU point, POPC to its smallest working 5-GPU point — for POPC, 1–4
 GPUs all exceed the exported model's fixed-capacity graph on a single 80 GB GPU, hence the
 4-GPU OOM and the 5-GPU baseline. See [Site-specific settings](#site-specific-settings).)
+
+DDD sits below Eq. 3 (84–85%): at 7×1×1 its 58.65 Å cube is cut into 8.4 Å slabs, thinner than
+the 6 Å cutoff, so real inter-rank communication and neighbor-list overhead dominate what the
+ghost-volume model ignores. POPC runs ~3% *above* Eq. 3 because its 5-GPU baseline is itself
+throttled (`--memory-fraction 0.95`, near the card limit) and the model is partly
+memory-bandwidth-bound, so per-atom throughput improves as each rank's partition shrinks —
+neither effect is in Eq. 3's fixed cost-per-atom assumption.
 
 See `benchmark/DDD/summary.json` and `benchmark/POPC_Bilayer/summary.json` for the full
 per-run numbers (wall time, per-rank atom counts, physical GPU IDs), and the `.screen` files for

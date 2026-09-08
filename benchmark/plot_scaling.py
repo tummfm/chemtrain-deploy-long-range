@@ -9,9 +9,13 @@ the two references from the chemtrain-deploy paper (arXiv:2506.04055):
         S(P) = [ (L + 2TR) / (P^(-1/d) L + 2TR) ]^d
 
     the cost of a semi-local model being proportional to (L + 2TR)^d once copied
-    (ghost) atoms within T*R of every subdomain face are included. Evaluated here
-    with this export's T = 2 message-passing layers and R = 6.0 Aa cutoff, and
-    generalised to each system's actual (px, py, pz) LAMMPS processor grid,
+    (ghost) atoms within T*R of every subdomain face are included, where T is the
+    halo depth in cutoffs. The benchmark runs the *communication-enabled*
+    (`comm on`) model variant: intermediate features are exchanged between ranks
+    after every message-passing step, so a rank only needs ghost atoms within one
+    cutoff of its faces rather than the num_interactions * r_max receptive field.
+    Hence T = 1 here, not the 2 message-passing layers of the omol head, with
+    R = 6.0 Aa. Generalised to each system's actual (px, py, pz) LAMMPS grid,
 
         cost(grid) = prod_axis ( L_axis / p_axis + 2TR ),
 
@@ -35,7 +39,8 @@ import matplotlib.pyplot as plt
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
-T = 2      # message-passing / interaction layers of the exported omol head
+T = 1      # halo depth in cutoffs: the comm-on variant exchanges features every
+           # step, so one cutoff of ghosts suffices (not the 2 MP layers of omol)
 R = 6.0    # model cutoff in Angstrom
 TWO_TR = 2.0 * T * R
 
