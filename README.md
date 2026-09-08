@@ -213,13 +213,3 @@ out-of-memory traceback.
 The reported results were collected on one node with NVIDIA A100-SXM4 80 GB GPUs connected by
 NVLink, CUDA 12.6, and CUDA-aware OpenMPI 4.1.5. All runs used one node, with one MPI rank per
 GPU.
-
-| Setting | DDD | POPC_Bilayer | How to choose it on another machine |
-|---|---|---|---|
-| `--cuda-devices` | `0,1,2,3` | Any currently free GPU IDs (`nvidia-smi`). Provide at least as many IDs as the largest GPU count. The IDs used here only show which GPUs were free; GPU 2 was busy. |
-| `--gpu-counts` | `1,2,4,7` | Use values defined in `PROCESSOR_GRIDS` in `run_benchmark.py`: `1,2,4,5,6,7`. There is no 3-GPU grid. On 80 GB GPUs, POPC needs at least 5 GPUs; larger GPUs may need fewer and smaller GPUs may need more. |
-| `--memory-fraction` | `0.75` | `0.95` | Fraction of each GPU's memory reserved for the XLA BFC memory pool used by the fixed-capacity model graph. POPC needs a larger fraction because each GPU handles more atoms and edges. Start by increasing the value until the graph fits, then reduce it if LAMMPS, Kokkos, or MPI buffers run out of memory. As a rough guide, scale it with atoms per rank and available GPU memory. |
-
-The `MPI_LAUNCHER` CUDA-IPC workaround mentioned in the setup is an OpenMPI issue, not a
-hardware-specific setting. It applies to OpenMPI builds that support multiple nodes and is harmless
-when the MPI installation does not need it.
